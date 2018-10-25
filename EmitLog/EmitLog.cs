@@ -17,12 +17,12 @@ namespace EmitLog
             using (var connection = factory.CreateConnection())
             using (var channel = connection.CreateModel())
             {
-                channel.ExchangeDeclare(exchange: "logs", type: "fanout");
+                channel.ExchangeDeclare(exchange: "logs", type: "topic");
 
                 var message = GetMessage(args);
                 var body = Encoding.UTF8.GetBytes(message);
                 channel.BasicPublish(exchange: "logs",
-                                     routingKey: "",
+                                     routingKey: "routingKey2",
                                      basicProperties: null,
                                      body: body);
                 Console.WriteLine(" [x] Sent {0}", message);

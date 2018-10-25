@@ -18,14 +18,14 @@ namespace ReceiveLogs
             using (var connection = factory.CreateConnection())
             using (var channel = connection.CreateModel())
             {
-                channel.ExchangeDeclare(exchange: "logs", type: "fanout");
+                channel.ExchangeDeclare(exchange: "logs", type: "topic");
                 //Random queue name
                 var queueName = channel.QueueDeclare().QueueName;
                 //Binding queue with exchange
                 channel.QueueBind(queue: queueName,
                                   exchange: "logs",
-                                  routingKey: "");
-
+                                  routingKey: "routingKey1");
+                
                 Console.WriteLine(" [*] Waiting for logs.");
 
                 var consumer = new EventingBasicConsumer(channel);
@@ -38,6 +38,33 @@ namespace ReceiveLogs
                 channel.BasicConsume(queue: queueName,
                                      autoAck: true,
                                      consumer: consumer);
+
+
+                Console.WriteLine("Add new binding routingKey2? (S/N)");
+                string response = Console.ReadLine();
+
+                if(response.ToUpper() == "S")
+                    channel.QueueBind(queue: queueName,
+                                  exchange: "logs",
+                                  routingKey: "routingKey2");
+
+                Console.WriteLine("Delete binding routingKey1? (S/N)");
+                response = Console.ReadLine();
+
+                if(response.ToUpper() == "S")
+                    channel.QueueUnbind(queue: queueName,
+                                  exchange: "logs",
+                                  routingKey: "routingKey1");
+
+                Console.ReadKey();
+                channel.QueueUnbind(queue: queueName,
+                                  exchange: "logs",
+                                  routingKey: "routingKey2");
+
+                Console.ReadKey();
+                channel.QueueBind(queue: queueName,
+                                  exchange: "logs",
+                                  routingKey: "routingKey3");
 
                 Console.WriteLine(" Press [enter] to exit.");
                 Console.ReadLine();
